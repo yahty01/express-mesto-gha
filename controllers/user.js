@@ -86,6 +86,7 @@ module.exports.updateUserAvatar = (req, res) => {
     { avatar },
     {
       new: true,
+
       runValidators: true,
       upsert: false,
     },
