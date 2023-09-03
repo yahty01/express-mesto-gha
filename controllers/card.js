@@ -4,7 +4,10 @@ const Card = require('../models/card');
 module.exports.getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch((error) => res.status(500).send({ message: error.message }));
+    .catch((error) => {
+      console.log(error);
+      return res.status(500).send({ message: error.message });
+    });
 };
 
 // Обработка POST-запроса для создания карточки
@@ -31,6 +34,8 @@ exports.deleteCard = (req, res) => {
     .orFail()
     .then(() => res.status(200).send({ message: 'Карточка удалена' }))
     .catch((error) => {
+      console.log(error);
+
       if (error.name === 'CastError') {
         return res.status(400).send({ message: 'Переданы некорректные данные для удаления карточки.' });
       }
@@ -53,17 +58,10 @@ module.exports.likeCard = (req, res) => {
     })
     .then((card) => res.status(200).send({ data: card }))
     .catch((error) => {
-      if (error.name === 'ValidationError') {
-        res
-          .status(400)
-          .send({ message: 'Переданы невалидные данные карточки' });
-      } else if (error.name === 'CastError') {
-        res.status(400).send({ message: 'Передан невалидный id карточки' });
-      } else if (res.statusCode === 404) {
-        res.send({ message: 'Запрашиваемая карточка не найдена' });
-      } else {
-        res.status(500).send({ message: `${error.message}` });
+      if (error.name === 'CastError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные для постановки лайка' });
       }
+      return res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
