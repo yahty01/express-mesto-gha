@@ -58,8 +58,17 @@ module.exports.likeCard = (req, res) => {
     })
     .then((card) => res.status(200).send({ data: card }))
     .catch((error) => {
-      console.log(error);
-      return res.status(500).send({ message: error.message });
+      if (error.name === 'ValidationError') {
+        res
+          .status(400)
+          .send({ message: 'Переданы невалидные данные карточки' });
+      } else if (error.name === 'CastError') {
+        res.status(400).send({ message: 'Передан невалидный id карточки' });
+      } else if (res.statusCode === 404) {
+        res.send({ message: 'Запрашиваемая карточка не найдена' });
+      } else {
+        res.status(500).send({ message: `${error.message}` });
+      }
     });
 };
 
@@ -75,7 +84,16 @@ module.exports.dislikeCard = (req, res) => {
     })
     .then((card) => res.status(200).send({ data: card }))
     .catch((error) => {
-      console.log(error);
-      return res.status(500).send({ message: error.message });
+      if (error.name === 'ValidationError') {
+        res
+          .status(400)
+          .send({ message: 'Переданы невалидные данные карточки' });
+      } else if (error.name === 'CastError') {
+        res.status(400).send({ message: 'Передан невалидный id карточки' });
+      } else if (res.statusCode === 404) {
+        res.send({ message: 'Запрашиваемая карточка не найдена' });
+      } else {
+        res.status(500).send({ message: `${error.message}` });
+      }
     });
 };
