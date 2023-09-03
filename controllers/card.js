@@ -1,10 +1,19 @@
 const Card = require('../models/card');
 
+const OK = 200;
+const CREATED = 201;
+const BAD_REQUEST = 400;
+const NOT_FOUND = 404;
+const ERROR_CODE = 500;
+
 // Обработка GET-запроса для получения всех карточек
 module.exports.getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch((error) => res.status(500).send({ message: error.message }));
+    .catch((error) => {
+      console.log(error);
+      return res.status(ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
+    });
 };
 
 // Обработка POST-запроса для создания карточки
@@ -12,14 +21,14 @@ exports.createCard = (req, res) => {
   const { name, link } = req.body;
 
   Card.create({ name, link, owner: req.user._id })
-    .then((card) => res.status(201).send({ data: card }))
+    .then((card) => res.status(CREATED).send({ data: card }))
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        return res.status(400).send({
+        return res.status(BAD_REQUEST).send({
           message: `Переданы некорректные данные для создании карточки - ${error.message}`,
         });
       }
-      return res.status(500).send({ message: error.message });
+      return res.status(ERROR_CODE).send({ message: error.message });
     });
 };
 
@@ -29,15 +38,13 @@ exports.deleteCard = (req, res) => {
 
   Card.findByIdAndRemove(cardId)
     .orFail()
-    .then(() => res.status(200).send({ message: 'Карточка удалена' }))
+    .then(() => res.status(CREATED).send({ message: 'Карточка удалена' }))
     .catch((error) => {
+      console.log(error);
       if (error.name === 'CastError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные для удаления карточки.' });
+        return res.status(BAD_REQUEST).send({ message: 'Карточка с указанным _id не найдена' });
       }
-      if (error.name === 'DocumentNotFoundError') {
-        return res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
-      }
-      return res.status(500).send({ message: error.message });
+      return res.status(ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -48,22 +55,15 @@ module.exports.likeCard = (req, res) => {
     { new: true },
   )
     .orFail(() => {
-      res.status(404);
+      res.status(NOT_FOUND);
       throw Error;
     })
-    .then((card) => res.status(200).send({ data: card }))
+    .then((card) => res.status(CREATED).send({ data: card }))
     .catch((error) => {
-      if (error.name === 'ValidationError') {
-        res
-          .status(400)
-          .send({ message: 'Переданы невалидные данные карточки' });
-      } else if (error.name === 'CastError') {
-        res.status(400).send({ message: 'Передан невалидный id карточки' });
-      } else if (res.statusCode === 404) {
-        res.send({ message: 'Запрашиваемая карточка не найдена' });
-      } else {
-        res.status(500).send({ message: `${error.message}` });
+      if (error.name === 'CastError') {
+        return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные для постановки лайка' });
       }
+      return res.status(ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -74,21 +74,15 @@ module.exports.dislikeCard = (req, res) => {
     { new: true },
   )
     .orFail(() => {
-      res.status(404);
+      res.status(NOT_FOUND);
       throw Error;
     })
-    .then((card) => res.status(200).send({ data: card }))
+    .then((card) => res.status(OK).send({ data: card }))
     .catch((error) => {
-      if (error.name === 'ValidationError') {
-        res
-          .status(400)
-          .send({ message: 'Переданы невалидные данные карточки' });
-      } else if (error.name === 'CastError') {
-        res.status(400).send({ message: 'Передан невалидный id карточки' });
-      } else if (res.statusCode === 404) {
-        res.send({ message: 'Запрашиваемая карточка не найдена' });
-      } else {
-        res.status(500).send({ message: `${error.message}` });
+      if (error.name === 'CastError') {
+        return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные для постановки лайка' });
       }
+      return res.status(ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
     });
+
 };
