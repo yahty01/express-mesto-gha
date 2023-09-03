@@ -90,10 +90,7 @@ module.exports.updateUserAvatar = (req, res) => {
       upsert: false,
     },
   )
-    .orFail(() => {
-      res.status(404).send({ message: 'Запрашиваемый юзер не найден' });
-      throw Error;
-    })
+    .orFail(new Error('NotFound'))
     .then((user) => res.send({ data: user }))
     .catch((error) => {
       if (error.name === 'ValidationError') {
