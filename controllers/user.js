@@ -20,7 +20,7 @@ exports.getUserById = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((error) => {
       if (error.name === 'CastError') {
-        return res.status(400).send({ message: `Ошибка по умолчанию -  ${error.message}` });
+        return res.status(400).send({ message: `Переданы некорректные данные -  ${error.message}` });
       }
       if (error.name === 'DocumentNotFoundError') {
         return res
@@ -60,10 +60,7 @@ module.exports.updateUserInfo = (req, res) => {
       upsert: false,
     },
   )
-    .orFail(() => {
-      res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
-      throw Error;
-    })
+    .orFail(new Error('NotFound'))
     .then((user) => res.send({ data: user }))
     .catch((error) => {
       if (error.name === 'ValidationError') {
