@@ -78,6 +78,9 @@ module.exports.updateUserInfo = (req, res) => {
         res
           .status(ERROR_CODE)
           .send({ message: `Ошибка по умолчанию -  ${error.message}` });
+      };
+        if (err.message === 'NotFound') {
+        return res.status(RESOURCE_NOT_FOUND).send({ message: 'Не существует пользователя с указанным _id' });
       }
     });
 };
