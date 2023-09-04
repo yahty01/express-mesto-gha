@@ -68,10 +68,7 @@ module.exports.updateUserInfo = (req, res) => {
     .orFail(new Error('NotFound'))
     .then((user) => res.send({ data: user }))
     .catch((error) => {
-      if (error.message === 'NotFound') {
-        res.status(NOT_FOUND).send({ message: 'Не найдено' });
-      }
-      else if (error.name === 'ValidationError') {
+        if (error.name === 'ValidationError') {
         res.status(BAD_REQUEST).send({
           message: 'Переданы невалидные данные для обновления данных юзера',
         });
