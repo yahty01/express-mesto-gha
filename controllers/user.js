@@ -74,11 +74,7 @@ module.exports.updateUserInfo = (req, res) => {
         });
       } else if (error.name === 'CastError') {
         res.status(BAD_REQUEST).send({ message: 'Передан невалидный id юзера' });
-      }
-        else if (err.message === 'NotFound') {
-          return res.status(RESOURCE_NOT_FOUND).send({ message: 'Не существует пользователя с указанным _id' });
-        }
-       else {
+      } else {
         res
           .status(ERROR_CODE)
           .send({ message: `Ошибка по умолчанию -  ${error.message}` });
