@@ -1,11 +1,4 @@
 const Card = require('../models/card');
-const {
-  GENERAL_ERROR,
-  RESOURCE_NOT_FOUND,
-  BAD_REQUEST,
-  STATUS_OK_CREATED,
-  STATUS_OK,
-} = require('../utils/constants');
 
 // Обработка GET-запроса для получения всех карточек
 module.exports.getCards = (req, res) => {
@@ -13,7 +6,7 @@ module.exports.getCards = (req, res) => {
     .then((cards) => res.send({ data: cards }))
     .catch((error) => {
       console.log(error);
-      return res.status(GENERAL_ERROR).send({ message: error.message });
+      return res.status(500).send({ message: error.message });
     });
 };
 
@@ -22,14 +15,14 @@ exports.createCard = (req, res) => {
   const { name, link } = req.body;
 
   Card.create({ name, link, owner: req.user._id })
-    .then((card) => res.status(STATUS_OK_CREATED).send({ data: card }))
+    .then((card) => res.status(201).send({ data: card }))
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        return res.status(BAD_REQUEST).send({
+        return res.status(400).send({
           message: `Переданы некорректные данные для создании карточки - ${error.message}`,
         });
       }
-      return res.status(GENERAL_ERROR).send({ message: error.message });
+      return res.status(500).send({ message: error.message });
     });
 };
 
@@ -39,17 +32,17 @@ exports.deleteCard = (req, res) => {
 
   Card.findByIdAndRemove(cardId)
     .orFail()
-    .then(() => res.status(STATUS_OK).send({ message: 'Карточка удалена' }))
+    .then(() => res.status(200).send({ message: 'Карточка удалена' }))
     .catch((error) => {
       console.log(error);
 
       if (error.name === 'CastError') {
-        return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные для удаления карточки.' });
+        return res.status(400).send({ message: 'Переданы некорректные данные для удаления карточки.' });
       }
       if (error.name === 'DocumentNotFoundError') {
-        return res.status(RESOURCE_NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
+        return res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
       }
-      return res.status(GENERAL_ERROR).send({ message: error.message });
+      return res.status(500).send({ message: error.message });
     });
 };
 
@@ -60,17 +53,17 @@ module.exports.likeCard = (req, res) => {
     { new: true },
   )
     .orFail(() => {
-      res.status(RESOURCE_NOT_FOUND);
+      res.status(404);
       throw Error;
     })
-    .then((card) => res.status(STATUS_OK).send({ data: card }))
+    .then((card) => res.status(200).send({ data: card }))
     .catch((error) => {
       if (error.name === 'CastError') {
-        res.status(BAD_REQUEST).send({ message: 'Передан невалидный id карточки' });
-      } else if (res.statusCode === RESOURCE_NOT_FOUND) {
+        res.status(400).send({ message: 'Передан невалидный id карточки' });
+      } else if (res.statusCode === 404) {
         res.send({ message: 'Запрашиваемая карточка не найдена' });
       } else {
-        res.status(GENERAL_ERROR).send({ message: `${error.message}` });
+        res.status(500).send({ message: `${error.message}` });
       }
     });
 };
@@ -82,17 +75,17 @@ module.exports.dislikeCard = (req, res) => {
     { new: true },
   )
     .orFail(() => {
-      res.status(RESOURCE_NOT_FOUND);
+      res.status(404);
       throw Error;
     })
-    .then((card) => res.status(STATUS_OK).send({ data: card }))
+    .then((card) => res.status(200).send({ data: card }))
     .catch((error) => {
       if (error.name === 'CastError') {
-        res.status(BAD_REQUEST).send({ message: 'Передан невалидный id карточки' });
-      } else if (res.statusCode === RESOURCE_NOT_FOUND) {
+        res.status(400).send({ message: 'Передан невалидный id карточки' });
+      } else if (res.statusCode === 404) {
         res.send({ message: 'Запрашиваемая карточка не найдена' });
       } else {
-        res.status(GENERAL_ERROR).send({ message: `${error.message}` });
+        res.status(500).send({ message: `${error.message}` });
       }
     });
 };
