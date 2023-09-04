@@ -98,12 +98,12 @@ module.exports.updateUserAvatar = (req, res) => {
   )
     .orFail(new Error('NotFound'))
     .then((user) => res.send({ data: user }))
-    .catch((error) => {
-      if (error.name === 'ValidationError') {
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
         res.status(BAD_REQUEST).send({
           message: 'Отправлены невалидные данные для обновления аватара',
         });
-      } else if (error.name === 'CastError') {
+      } else if (err.name === 'CastError') {
         res.status(BAD_REQUEST).send({ message: 'Отправлен невалидный id юзера' });
       } else {
         res
