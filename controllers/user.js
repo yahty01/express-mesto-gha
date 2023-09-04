@@ -74,6 +74,8 @@ module.exports.updateUserInfo = (req, res) => {
         });
       } else if (error.name === 'CastError') {
         res.status(BAD_REQUEST).send({ message: 'Передан невалидный id юзера' });
+      } else if (error.message === 'NotFound') {
+        res.status(NOT_FOUND).send({ message: 'Пользователь не найден' });
       } else {
         res
           .status(ERROR_CODE)
@@ -105,6 +107,8 @@ module.exports.updateUserAvatar = (req, res) => {
         });
       } else if (error.name === 'CastError') {
         res.status(BAD_REQUEST).send({ message: 'Отправлен невалидный id юзера' });
+      } else if (error.message === 'NotFound') {
+        res.status(NOT_FOUND).send({ message: 'Пользователь не найден' });
       } else {
         res
           .status(ERROR_CODE)
