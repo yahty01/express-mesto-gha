@@ -4,6 +4,8 @@ const mongoose = require('mongoose'); // Подключаем mongoose
 
 const bodyParser = require('body-parser');
 
+const NOT_FOUND = 404;
+
 // Слушаем 3000 порт
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -23,7 +25,7 @@ app.use('/cards', require('./routes/cards'));
 
 app.use((req, res) => {
   res
-    .status(404)
+    .status(NOT_FOUND)
     .send({ message: 'Страница по указанному маршруту не найдена' });
 });
 
