@@ -1,18 +1,36 @@
-const express = require('express');
+const router = require('express').Router();
 
-const router = express.Router();
-const cardController = require('../controllers/card');
+const { celebrate, Joi } = require('celebrate');
 
-// Роут для получения всех карточек
-router.get('/', cardController.getCards);
+const {
+  getCards, createCard, deleteCard, likeCard, dislikeCard,
+} = require('../controllers/cards');
 
-// Роут для создания карточки
-router.post('/', cardController.createCard);
+router.get('/cards', getCards);
 
-// Роут для удаления карточки по идентификатору
-router.delete('/:cardId', cardController.deleteCard);
+router.post('/cards', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30),
+    link: Joi.string().required().pattern(/^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=[\]]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=[\]]*)$/),
+  }),
+}), createCard);
 
-router.put('/:cardId/likes', cardController.likeCard);
-router.delete('/:cardId/likes', cardController.dislikeCard);
+router.delete('/cards/:cardId/likes', celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().length(24).hex().required(),
+  }),
+}), dislikeCard);
+
+router.delete('/cards/:cardId', celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().length(24).hex().required(),
+  }),
+}), deleteCard);
+
+router.put('/cards/:cardId/likes', celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().length(24).hex().required(),
+  }),
+}), likeCard);
 
 module.exports = router;

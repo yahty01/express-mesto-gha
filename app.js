@@ -1,40 +1,43 @@
+const {
+  HTTP_STATUS_INTERNAL_SERVER_ERROR,
+} = require('http2').constants;
+
 const express = require('express');
-
-const mongoose = require('mongoose'); // Подключаем mongoose
-
+const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const { errors } = require('celebrate');
 
-const NOT_FOUND = 404;
+const router = require('./routes/index');
 
-// Слушаем 3000 порт
-const { PORT = 3000 } = process.env;
+const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
+
 const app = express();
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '64e7556fb0a3f34e9d4ffc28', // вставьте сюда _id созданного в предыдущем пункте пользователя
-  };
+mongoose.connect(DB_URL, {});
+// .then(() => {
+// drop users collection from previouse project
+// mongoose.connection.db.dropCollection('users');
+// }).then(() => { console.log('all right'); })
+//   .catch((err) => { console.log(err); });
 
+app.use(cookieParser());
+
+app.use('/', router);
+
+app.use(errors());
+
+app.use((err, req, res, next) => {
+  const { statusCode = HTTP_STATUS_INTERNAL_SERVER_ERROR, message } = err;
+  res.status(statusCode).send({
+    message: statusCode === 500
+      ? `На сервере произошла ошибка. ${err.message}`
+      : message,
+  });
   next();
 });
 
-app.use('/users', require('./routes/users'));
-app.use('/cards', require('./routes/cards'));
-
-app.use((req, res) => {
-  res
-    .status(NOT_FOUND)
-    .send({ message: 'Страница по указанному маршруту не найдена' });
-});
-
-mongoose.connect('mongodb://localhost:27017/mestodb', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
-// Запуск сервера
-app.listen(PORT, () => {
-  console.log(`Сервер запущен на порту ${PORT}`);
-});
+app.listen(PORT, () => {});

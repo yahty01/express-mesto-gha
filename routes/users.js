@@ -1,19 +1,31 @@
-// users.js (в папке routes)
-const express = require('express');
+const router = require('express').Router();
 
-const router = express.Router();
-const usersController = require('../controllers/user'); // Импортируйте контроллер пользователей
+const { celebrate, Joi } = require('celebrate');
 
-// Маршрут для получения всех пользователей
-router.get('/', usersController.getUsers);
+const {
+  getUsers, findUser, updateUserInfo, updateUserAvatar, getCurrentUserInfo,
+} = require('../controllers/users');
 
-// Маршрут для получения пользователя по ID
-router.get('/:userId', usersController.getUserById);
+router.get('/users', getUsers);
+router.get('/users/me', getCurrentUserInfo);
 
-// Маршрут для создания пользователя
-router.post('/', usersController.createUser);
+router.get('/users/:userId', celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().length(24).hex().required(),
+  }),
+}), findUser);
 
-router.patch('/me', usersController.updateUserInfo);
-router.patch('/me/avatar', usersController.updateUserAvatar);
+router.patch('/users/me', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+  }),
+}), updateUserInfo);
+
+router.patch('/users/me/avatar', celebrate({
+  body: Joi.object().keys({
+    avatar: Joi.string().pattern(/^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=[\]]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=[\]]*)$/),
+  }),
+}), updateUserAvatar);
 
 module.exports = router;
