@@ -11,7 +11,7 @@
     "lintfix": "npx eslint . --fix"
   },
   "keywords": [],
-  "author": "Egor Savelev",
+  "author": "Daria Dolinovskaya",
   "license": "ISC",
   "devDependencies": {
     "eslint": "^8.48.0",
@@ -23,14 +23,11 @@
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
     "celebrate": "^15.0.1",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-rate-limit": "^6.11.0",
-    "express-winston": "^4.2.0",
     "helmet": "^7.0.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.5.0",
-    "winston": "^3.10.0"
+    "validator": "^13.11.0"
   }
 }
